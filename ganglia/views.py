@@ -21,7 +21,9 @@ def detail(request,resource_id):
 	rel_list = []
 	for rel_name in rel_namelist:
 		"""attention after filter you get a list"""
-		rel_list.append(Resource.objects.filter(res_name=rel_name.strip())[0])  
+		rel_fil = Resource.objects.filter(res_name=rel_name.strip(),res_hostname=res.res_hostname)
+		if not len(rel_fil)==0:
+			rel_list.append(rel_fil[0])
 	print rel_list
 	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':metric_list,'relate_list':rel_list})
 
