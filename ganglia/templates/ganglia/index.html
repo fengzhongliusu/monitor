@@ -1,9 +1,36 @@
-{% if resource_list %}
-     <ul>
-	{% for resource in resource_list %}
-	  <li>{{ resource.res_name }}</li>
-	{% endfor %}
-     </ul>
-{% else %}
-     <p No resource are available />
-{% endif %}
+{% extends "ganglia/base.html" %}
+{% block title%}
+      <h1 align=center>
+        Monitored Hosts
+        <small>resources list</small>
+      </h1>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-6 col-md-4"></div>
+    <div class="col-xs-6 col-md-4">
+      {% if host_list and resource_list %}
+      {% for host in host_list %}
+      <h4 id="host_{{host.host_name}}">
+        <a data-toggle="collapse" href="#{{ host.host_name }}" aria-expanded="false" aria-controls="{{ host.host_name }}">{{ host.host_name}}</a>
+      </h4>
+      <ul id="{{ host.host_name }}" class="collapse list-group">
+        {% for resource in resource_list %}
+       {% if resource.res_hostname == host.host_name%}
+        <li class="list-group-item">
+          <a href="{% url 'ganglia:detail' resource.id %}">{{resource.res_name}}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      {% endfor %}
+    {% else %}
+      <p>No resource are available</p>
+      {% endif %}
+    </div>
+    <div class="col-xs-6 col-md-4"></div>
+  </div>
+</div>
+{% endblock %}
+

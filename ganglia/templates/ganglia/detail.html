@@ -1,0 +1,51 @@
+{% extends "ganglia/base.html" %}
+
+{% block title %} 
+<h2 align=center>
+   Resource: {{ resource }}
+   <small>({{resource.res_hostname}})</small>
+</h2>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-3">
+      <h4>Metric List</h4>
+      <ul class=list-group>
+        {% for metric in metric_list %}
+        <li class=list-group-item>
+          <a href="">{{metric.metric_name}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <h4>Related</h4>
+      {% if relate_list %}
+        <ul>
+	{% for res in relate_list %}
+	  <li><a href="">{{res}}</a></li>
+	{% endfor %}
+	</ul>
+      {% else %}
+	<h5> no related Resource</h5>
+      {% endif %}
+    </div>
+    <div id="middle" class="col-md-4" style="display:none">
+	<p>Text in middle part</p>
+	{% include "ganglia/part.html" %}
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function(){
+        $("h2").click(function(){
+	  $("#middle").fadeOut();
+        });
+        $("h4").click(function(){
+	  $("#middle").fadeIn();
+        });
+  });
+</script>
+{% endblock %}

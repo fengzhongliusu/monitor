@@ -1,0 +1,13 @@
+<html lang="en">
+<head>
+    {% load staticfiles%}
+    <link rel="stylesheet" href="{% static 'ganglia/css/bootstrap.min.css' %}" />
+    <script src="{% static 'ganglia/js/jquery.min.js' %}"></script>
+    <script src="{% static 'ganglia/js/bootstrap.min.js' %}"></script>
+    <h1 align=center>{% block title %}{% endblock %}</h1>
+</head>
+
+<body>
+    <div id="content">{% block content %}{% endblock %}</div>
+</body>
+</html>
