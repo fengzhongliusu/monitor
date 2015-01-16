@@ -23,7 +23,7 @@
       {% if relate_list %}
         <ul>
 	{% for res in relate_list %}
-	  <li><a href="">{{res}}</a></li>
+	  <li><a href="{% url 'ganglia:detail' res.id %}">{{res.res_name}}</a></li>
 	{% endfor %}
 	</ul>
       {% else %}

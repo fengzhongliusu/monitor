@@ -7,22 +7,22 @@ nsResource:hardware nsProp:subClassOf nsResource:Resource .
 nsResource:software nsProp:subClassOf nsResource:Resource .
 nsResource:Cpu nsProp:subClassOf nsResource:hardware .
 nsResource:Mem nsProp:subClassOf nsResource:hardware .
-nsResource:network nsProp:subClassOf nsResource:hardware .
-nsResource:disk nsProp:subClassOf nsResource:hardware .
-nsResource:jvm nsProp:subClassOf nsResource:software .
+nsResource:Network nsProp:subClassOf nsResource:hardware .
+nsResource:Disk nsProp:subClassOf nsResource:hardware .
+nsResource:Jvm nsProp:subClassOf nsResource:software .
 nsResource:Cpu nsProp:hasMetric nsMetric:CpuUsgMetric .
 nsResource:Cpu nsProp:hasMetric nsMetric:CpuTimeMetrics .
-nsResource:network nsProp:hasMetric nsMetric:netInBytes .
-nsResource:network nsProp:hasMetric nsMetric:netOutBytes .
+nsResource:Network nsProp:hasMetric nsMetric:netInBytes .
+nsResource:Network nsProp:hasMetric nsMetric:netOutBytes .
 nsResource:Mem nsProp:hasMetric nsMetric:freeMemMetric .
 nsResource:Mem nsProp:hasMetric nsMetric:MemUsgMetric . 
-nsResource:disk nsProp:hasMetric nsMetric:diskRdBytes .
-nsResource:disk nsProp:hasMetric nsMetric:diskWrBytes .
-nsResource:jvm nsProp:hasMetric nsMetric:thrNumMetric .
-nsResource:Cpu nsProp:affectBy nsResource:jvm .
-nsResource:Mem nsProp:affectBy nsResource:jvm .
-nsResource:disk nsProp:affectBy nsResource:network .
-nsResource:Cpu nsProp:affectBy nsResource:disk .
+nsResource:Disk nsProp:hasMetric nsMetric:DiskRdBytes .
+nsResource:Disk nsProp:hasMetric nsMetric:DiskWrBytes .
+nsResource:Jvm nsProp:hasMetric nsMetric:thrNumMetric .
+nsResource:Cpu nsProp:affectBy nsResource:Jvm .
+nsResource:Mem nsProp:affectBy nsResource:Jvm .
+nsResource:Disk nsProp:affectBy nsResource:Network .
+nsResource:Cpu nsProp:affectBy nsResource:Disk .
 
 
 
