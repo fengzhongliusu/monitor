@@ -14,6 +14,7 @@ def index(request):
 	context = {'resource_list': resource_list,'host_list':host_list}
 	return render(request,'ganglia/index.html',context)
 
+	
 def detail(request,resource_id):
 	res = get_object_or_404(Resource,pk=resource_id)
 	metric_list = Metric.objects.filter(resource=res)
@@ -24,7 +25,6 @@ def detail(request,resource_id):
 		rel_fil = Resource.objects.filter(res_name=rel_name.strip(),res_hostname=res.res_hostname)
 		if not len(rel_fil)==0:
 			rel_list.append(rel_fil[0])
-	print rel_list
 	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':metric_list,'relate_list':rel_list})
 
 

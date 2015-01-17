@@ -30,13 +30,25 @@
 	<h5> no related Resource</h5>
       {% endif %}
     </div>
-    <div id="middle" class="col-md-4" style="display:none">
-	<p>Text in middle part</p>
-	{% include "ganglia/part.html" %}
+    <div class="col-md-8">
+	<div class="row">
+	    <h4 align="center">overview for {{resource.res_name}} <small>(last hour)</small></h4>
+	    {% load staticfiles%}
+	    <div align="center">
+	    <img src="{% static 'ganglia/images/new.png' %}" align=center/>
+	    </div>
+	</div>
+	<div class="row">
+	   <div class="col-md-3 col-md-offset-1">
+	   </div>
+	   <div class="col-md-3">
+	   </div>
+	</div>
     </div>
-    <div class="col-md-4"></div>
   </div>
 </div>
+
+
 
 <script>
   $(document).ready(function(){
