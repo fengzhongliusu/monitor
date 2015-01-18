@@ -13,12 +13,23 @@ def index(request):
 	get_relate(resource_list)
 	context = {'resource_list': resource_list,'host_list':host_list}
 	return render(request,'ganglia/index.html',context)
-
 	
+
+
 def detail(request,resource_id):
 	res = get_object_or_404(Resource,pk=resource_id)
-	res_img(res)
 	metric_list = Metric.objects.filter(resource=res)
+
+	#generate graph for every metric
+	path_list = res_img(metric_list)
+	
+	mtc_list = []
+	for metric in metric_list:
+		mtc= {}
+		mtc["mtc_name"] = metric.metric_name
+		mtc['img_path'] = path_list[metric.metric_name]
+		mtc_list.append(mtc)
+
 	rel_namelist = str_to_list(res.res_related)
 	rel_list = []
 	for rel_name in rel_namelist:
@@ -26,6 +37,6 @@ def detail(request,resource_id):
 		rel_fil = Resource.objects.filter(res_name=rel_name.strip(),res_hostname=res.res_hostname)
 		if not len(rel_fil)==0:
 			rel_list.append(rel_fil[0])
-	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':metric_list,'relate_list':rel_list,'res_img':res_img})
+	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':mtc_list,'relate_list':rel_list})
 
 

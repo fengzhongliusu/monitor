@@ -15,7 +15,7 @@
       <ul class=list-group>
         {% for metric in metric_list %}
         <li class=list-group-item>
-          <a href="">{{metric.metric_name}}</a>
+          <a href="">{{metric.mtc_name}}</a>
         </li>
         {% endfor %}
       </ul>
@@ -32,25 +32,25 @@
     </div>
     <div class="col-md-10">
 	{% for metric in metric_list %}
-	  <h4 align="center">{{metric.metric_name}} graph</h4>
+	  <h4 align="center">{{metric.mtc_name}} graph</h4>
 	  <div align="center" class="row">
 	    <div class="col-md-4 col-md-offset-1">
 		{% load staticfiles%}
-	        <img src="{% static "ganglia/images/cpu_system_hour.png" %}"/>
+	        <img src="{% static metric.img_path.0 %}"/>
 	    </div>
 	    <div class="col-md-4 col-md-offset-1">
 		{% load staticfiles%}
-	        <img src="{% static "ganglia/images/cpu_system_day.png" %}"/>
+	        <img src="{% static metric.img_path.1 %}"/>
 	    </div>
 	  </div>
 	  <div align="center" class="row">
 	    <div class="col-md-4 col-md-offset-1">
 		{% load staticfiles%}
-	        <img src="{% static "ganglia/images/cpu_system_week.png" %}"/>
+	        <img src="{% static metric.img_path.2 %}"/>
 	    </div>
 	    <div class="col-md-4 col-md-offset-1">
 		{% load staticfiles%}
-	        <img src="{% static "ganglia/images/cpu_system_month.png" %}"/>
+	        <img src="{% static metric.img_path.3 %}"/>
 	    </div>
 	  </div>
 	{% endfor%}

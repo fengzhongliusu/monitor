@@ -1,5 +1,6 @@
-import rrdtool
-from ganglia.models import Resource,Metric,Host
+#import rrdtool
+#from ganglia.models import Resource,Metric,Host
+import os
 import jpype
 
 def get_relate(res_list):
@@ -35,25 +36,26 @@ def str_to_list(s):
 '''
 generate images for metrics in the resource
 '''
-def res_img(res):
-	metric_list = Metric.objects.filter(resource=res)
-	res_img = {}
+def res_img(metric_list):
+	res_img_list = {}
 	for metric in metric_list:
-		generate_img(str(res.res_hostname),str(metric.metric_name),'hour')
-		generate_img(str(res.res_hostname),str(metric.metric_name),'day')
-		generate_img(str(res.res_hostname),str(metric.metric_name),'week')
-		generate_img(str(res.res_hostname),str(metric.metric_name),'month')
-		metric_imgpath = ['ganglia/images/%s_hour.png' % metric.metric_name,
-			'ganglia/images/%s_day.png' % metric.metric_name,
-			'ganglia/images/%s_week.png'% metric.metric_name,
-			'ganglia/images/%s_month.png' % metric.metric_name]	
-		res_img[metric.metric_name] = metric_imgpath
-	return res_img
+		hostname = str(metric.mtr_hostname)
+		m_name = str(metric.metric_name)
+		generate_img(hostname,m_name,'hour')
+		generate_img(hostname,m_name,'day')
+		generate_img(hostname,m_name,'week')
+		generate_img(hostname,m_name,'month')
+		metric_imgpath = ['ganglia/images/%s_hour.png' % m_name,
+			'ganglia/images/%s_day.png' % m_name,
+			'ganglia/images/%s_week.png'% m_name,
+			'ganglia/images/%s_month.png' % m_name]	
+		res_img_list[m_name] = metric_imgpath
+	return res_img_list
 
 
 def generate_img(host_name,metric_name,time):
 	img_path = "/home/ganglia/django_proj/monitor/ganglia/static/ganglia/images/"
-	rrd_path = "/var/lib/ganglia/rrds/my cluster/"+host_name+"/"+metric_name.lower()+".rrd"
+	rrd_path = "/var/lib/ganglia/rrds/my\ cluster/"+host_name+"/"+metric_name.lower()+".rrd"
 	if time == "hour":
 		rrdtool_graph(img_path+metric_name+'_hour.png',rrd_path,'end-1h','now',metric_name,'180')
 	elif time == "day":
@@ -66,7 +68,14 @@ def generate_img(host_name,metric_name,time):
 		return 
 
 
-def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):
+def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):	
+	print r_path
+	command = "rrdtool graph %s --end %s --start %s --width 250 --height 150 DEF:ds=%s:sum:AVERAGE:step=%s AREA:ds#0000FF:%s" % (i_path,end,start,r_path,step,mtric_name)
+	os.system(command)
+
+
+
+'''def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):	
 	rrdtool.graph(i_path,'--imgformat','PNG',
 	'--width','250',
 	'--height','150',
@@ -77,7 +86,7 @@ def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):
 	'DEF:ds=%s:sum:AVERAGE:step=%s' % (r_path,step),
 	'AREA:ds#CC00FF:%s' % mtric_name
 	)
-
+'''
 
 
 if __name__ == "__main__":
