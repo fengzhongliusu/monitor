@@ -15,7 +15,7 @@
       <ul class=list-group>
         {% for metric in metric_list %}
         <li class=list-group-item>
-          <a href="">{{metric.mtc_name}}</a>
+          <a>{{metric.mtc_name}}</a>
         </li>
         {% endfor %}
       </ul>
@@ -31,29 +31,7 @@
       {% endif %}
     </div>
     <div class="col-md-10">
-	{% for metric in metric_list %}
-	  <h4 align="center">{{metric.mtc_name}} graph</h4>
-	  <div align="center" class="row">
-	    <div class="col-md-4 col-md-offset-1">
-		{% load staticfiles%}
-	        <img src="{% static metric.img_path.0 %}"/>
-	    </div>
-	    <div class="col-md-4 col-md-offset-1">
-		{% load staticfiles%}
-	        <img src="{% static metric.img_path.1 %}"/>
-	    </div>
-	  </div>
-	  <div align="center" class="row">
-	    <div class="col-md-4 col-md-offset-1">
-		{% load staticfiles%}
-	        <img src="{% static metric.img_path.2 %}"/>
-	    </div>
-	    <div class="col-md-4 col-md-offset-1">
-		{% load staticfiles%}
-	        <img src="{% static metric.img_path.3 %}"/>
-	    </div>
-	  </div>
-	{% endfor%}
+	{% include 'ganglia/metric_png.html' %}
     </div>
   </div>
 </div>

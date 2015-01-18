@@ -57,20 +57,26 @@ def generate_img(host_name,metric_name,time):
 	img_path = "/home/ganglia/django_proj/monitor/ganglia/static/ganglia/images/"
 	rrd_path = "/var/lib/ganglia/rrds/my\ cluster/"+host_name+"/"+metric_name.lower()+".rrd"
 	if time == "hour":
-		rrdtool_graph(img_path+metric_name+'_hour.png',rrd_path,'end-1h','now',metric_name,'180')
+		rrdtool_graph(img_path+metric_name+'_hour.png',rrd_path,'end-1h','now',metric_name,'180',time)
 	elif time == "day":
-		rrdtool_graph(img_path+metric_name+'_day.png',rrd_path,'end-1d','now',metric_name,'4320')
+		rrdtool_graph(img_path+metric_name+'_day.png',rrd_path,'end-1d','now',metric_name,'4320',time)
 	elif time == "week":
-		rrdtool_graph(img_path+metric_name+'_week.png',rrd_path,'end-1w','now',metric_name,'30240')
+		rrdtool_graph(img_path+metric_name+'_week.png',rrd_path,'end-1w','now',metric_name,'30240',time)
 	elif time == "month":
-		rrdtool_graph(img_path+metric_name+'_month.png',rrd_path,'end-1m','now',metric_name,'129600')
+		rrdtool_graph(img_path+metric_name+'_month.png',rrd_path,'end-1m','now',metric_name,'129600',time)
 	else:
 		return 
 
 
-def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):	
-	print r_path
-	command = "rrdtool graph %s --end %s --start %s --width 250 --height 150 DEF:ds=%s:sum:AVERAGE:step=%s AREA:ds#0000FF:%s" % (i_path,end,start,r_path,step,mtric_name)
+def rrdtool_graph(i_path,r_path,start,end,mtric_name,step,time):	
+	vert_label = "default"
+	if "cpu" in mtric_name:
+		vert_label = "%"
+	elif "mem" in mtric_name:
+		vert_label = "KiB"
+	elif "disk" in mtric_name:
+		vert_label = "GB"
+	command = "rrdtool graph %s --end %s --start %s --title %s --vertical-label %s --width 250 --height 150 DEF:ds=%s:sum:AVERAGE:step=%s AREA:ds#0000FF:%s" % (i_path,end,start,mtric_name+"/last_"+time,vert_label,r_path,step,mtric_name)
 	os.system(command)
 
 
