@@ -10,7 +10,7 @@
 {% block content %}
 <div class="container-fluid">
   <div class="row">
-    <div class="col-xs-3">
+    <div class="col-xs-2">
       <h4>Metric List</h4>
       <ul class=list-group>
         {% for metric in metric_list %}
@@ -30,20 +30,30 @@
 	<h5> no related Resource</h5>
       {% endif %}
     </div>
-    <div class="col-md-8">
-	<div class="row">
-	    <h4 align="center">overview for {{resource.res_name}} <small>(last hour)</small></h4>
-	    {% load staticfiles%}
-	    <div align="center">
-	    <img src="{% static 'ganglia/images/new.png' %}" align=center/>
+    <div class="col-md-10">
+	{% for metric in metric_list %}
+	  <h4 align="center">{{metric.metric_name}} graph</h4>
+	  <div align="center" class="row">
+	    <div class="col-md-4 col-md-offset-1">
+		{% load staticfiles%}
+	        <img src="{% static "ganglia/images/cpu_system_hour.png" %}"/>
 	    </div>
-	</div>
-	<div class="row">
-	   <div class="col-md-3 col-md-offset-1">
-	   </div>
-	   <div class="col-md-3">
-	   </div>
-	</div>
+	    <div class="col-md-4 col-md-offset-1">
+		{% load staticfiles%}
+	        <img src="{% static "ganglia/images/cpu_system_day.png" %}"/>
+	    </div>
+	  </div>
+	  <div align="center" class="row">
+	    <div class="col-md-4 col-md-offset-1">
+		{% load staticfiles%}
+	        <img src="{% static "ganglia/images/cpu_system_week.png" %}"/>
+	    </div>
+	    <div class="col-md-4 col-md-offset-1">
+		{% load staticfiles%}
+	        <img src="{% static "ganglia/images/cpu_system_month.png" %}"/>
+	    </div>
+	  </div>
+	{% endfor%}
     </div>
   </div>
 </div>

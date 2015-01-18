@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from ganglia.models import Resource,Metric,Host
 import jpype
 import json
-from ganglia.util import get_relate,str_to_list
+from ganglia.util import get_relate,str_to_list,res_img
 
 
 # Create your views here.
@@ -17,6 +17,7 @@ def index(request):
 	
 def detail(request,resource_id):
 	res = get_object_or_404(Resource,pk=resource_id)
+	res_img(res)
 	metric_list = Metric.objects.filter(resource=res)
 	rel_namelist = str_to_list(res.res_related)
 	rel_list = []
@@ -25,6 +26,6 @@ def detail(request,resource_id):
 		rel_fil = Resource.objects.filter(res_name=rel_name.strip(),res_hostname=res.res_hostname)
 		if not len(rel_fil)==0:
 			rel_list.append(rel_fil[0])
-	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':metric_list,'relate_list':rel_list})
+	return render(request,"ganglia/detail.html",{'resource':res,'metric_list':metric_list,'relate_list':rel_list,'res_img':res_img})
 
 
