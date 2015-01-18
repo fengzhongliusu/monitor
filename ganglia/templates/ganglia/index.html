@@ -5,6 +5,7 @@
         <small>resources list</small>
       </h1>
 {% endblock %}
+<br/>
 {% block content %}
 <div class="container-fluid">
   <div class="row">
@@ -12,9 +13,11 @@
     <div class="col-xs-6 col-md-4">
       {% if host_list and resource_list %}
       {% for host in host_list %}
-      <h4 id="host_{{host.host_name}}">
+      <div class="alert alert-info">
+      <h4 align="center">
         <a data-toggle="collapse" href="#{{ host.host_name }}" aria-expanded="false" aria-controls="{{ host.host_name }}">{{ host.host_name}}</a>
       </h4>
+      </div>
       <ul id="{{ host.host_name }}" class="collapse list-group">
         {% for resource in resource_list %}
        {% if resource.res_hostname == host.host_name%}
