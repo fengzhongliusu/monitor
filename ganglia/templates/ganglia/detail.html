@@ -1,10 +1,17 @@
 {% extends "ganglia/base.html" %}
 
 {% block title %} 
+<div class="row">
+<div class="col-md-6 col-md-offset-3">
 <h2 align=center>
    Resource: {{ resource }}
    <small>({{resource.res_hostname}})</small>
 </h2>
+</div>
+<div class="col-md-1 col-md-offset-1">
+<small align="right"><a href="{% url 'ganglia:index' %}">Home</a></small>
+</div>
+</div>
 {% endblock %}
 
 {% block content %}
