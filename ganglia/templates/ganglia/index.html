@@ -15,10 +15,11 @@
       {% for host in host_list %}
       <div class="alert alert-info">
       <h4 align="center">
-        <a data-toggle="collapse" href="#{{ host.host_name }}" aria-expanded="false" aria-controls="{{ host.host_name }}">{{ host.host_name}}</a>
+	{% load ganglia_tag %}
+        <a data-toggle="collapse" href="#{{ host.host_name|repl:"." }}" aria-expanded="false" aria-controls="{{ host.host_name|repl:"." }}">{{ host.host_name}}</a>
       </h4>
       </div>
-      <ul id="{{ host.host_name }}" class="collapse list-group">
+      <ul id="{{ host.host_name|repl:"." }}" class="collapse list-group">
         {% for resource in resource_list %}
        {% if resource.res_hostname == host.host_name%}
         <li class="list-group-item">

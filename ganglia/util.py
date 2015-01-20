@@ -8,7 +8,7 @@ def get_relate(res_list):
 		return 	
 	if len(res_list[0].res_related) > 0:	#already reduced
 		return 
-	base_path = "/home/ganglia/django_proj/monitor/ganglia/metric/"
+	base_path = "/home/monitor/ganglia/metric/"
 	jar_path = base_path + "metric.jar"
 	ttl_path = base_path + "metric.ttl"
 	rules_path = base_path + "metric.rules"
@@ -54,8 +54,8 @@ def res_img(metric_list):
 
 
 def generate_img(host_name,metric_name,time):
-	img_path = "/home/ganglia/django_proj/monitor/ganglia/static/ganglia/images/"
-	rrd_path = "/var/lib/ganglia/rrds/my\ cluster/"+host_name+"/"+metric_name.lower()+".rrd"
+	img_path = "/home/monitor/ganglia/static/ganglia/images/"
+	rrd_path = "/var/lib/ganglia/rrds/my_cluster/"+host_name+"/"+metric_name.lower()+".rrd"
 	if time == "hour":
 		rrdtool_graph(img_path+metric_name+'_hour.png',rrd_path,'end-1h','now',metric_name,'180',time)
 	elif time == "day":
