@@ -4,6 +4,13 @@ import os
 import jpype
 
 '''
+parse the xml generated for graphing into data pairs 
+'''
+def parse_xml(xml):
+    return 
+
+
+'''
 read the configure file of ganglia and save to the table of django models,return hostname list
 '''
 def read_ganglia_conf():    

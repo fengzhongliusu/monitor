@@ -55,18 +55,18 @@ def get_text(request, host_name, rrd_name, time_slot):
     base_url = "/var/lib/ganglia/rrds/my_cluster/"
     rrd_path = base_url + host_name + "/" + rrd_name + ".rrd"
     end = "now"    
-    if time_slot == 1: 
+    if time_slot == "1": 
         start = "end-1h"
         step = "60"
-    elif time_slot == 2:
+    elif time_slot == "2":
         start = "end-1d"
-        step = "800"
-    elif time_slot == 3:
+        step = "960"
+    elif time_slot == "3":
         start = "end-1w"
-        step = "5000"
+        step = "7200"
     else : 
         start = "end-1m"
-        step = "2500"
+        step = "7200"
     command = "rrdtool xport --start %s --end %s DEF:ds=%s:sum:AVERAGE:step=%s XPORT:ds:legend" % (start,end,rrd_path,step)
     status,output = commands.getstatusoutput(command)
     return HttpResponse(output)
