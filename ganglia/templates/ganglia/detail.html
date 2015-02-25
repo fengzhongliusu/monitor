@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
         <h2 align=center>
-            Resource: {{ resource }}
+            Resource: {{ resource.res_name }}
             <small>({{resource.res_hostname}})</small>
         </h2>
     </div>
@@ -39,14 +39,30 @@
         </div>
         <div class="col-md-8">
             <div align="center" class="row">
-                <button onclick=xml_func("url") class="btn btn-primary">last hour</button> 
-                <button onclick=xml_func("url") class="btn btn-primary">last day</button> 
-                <button onclick=xml_func("url") class="btn btn-primary">last week</button> 
-                <button onclick=xml_func("url") class="btn btn-primary">last month</button> 
-            </div>
-            <div align="center" class="row">
                 {% for metric in metric_list %}
-                <div id={{ metric.mtc_name }}></div>
+                {% if forloop.counter == 1 %}
+                <div id={{ metric.mtc_name }} style="display:block">
+                    <div align="center" class="row">graph for {{metric.mtc_name}}</div>
+                    <div align="center" class="row">
+                        <button onclick="xml_func('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
+                    </div>
+                    <div id="graph_holder"></div>
+                </div>
+                {% else %}
+                <div id={{ metric.mtc_name }} style="display:none">
+                    <div align="center" class="row">graph for {{metric.mtc_name}}</div>
+                    <div align="center" class="row">
+                        <button onclick="xml_func('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
+                        <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
+                    </div>
+                    <div id="graph_holder"></div>
+                </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -55,8 +71,35 @@
 
 
 
-<script>
+<script type="text/javascript">
 function test_click(text){
+    {% for metric in metric_list %}      
+    if('{{ metric.mtc_name }}' == text)
+        document.getElementById('{{ metric.mtc_name }}').style.display='block';
+    else
+        document.getElementById('{{ metric.mtc_name }}').style.display='none';
+    {% endfor %}
 }
+
+function xml_func(url,obj){
+    var time_ary = new Array();
+    var value_ary = new Array();
+    var xml_http;
+    var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
+    var graph_obj = obj.parentNode.parentNode.querySelector("#graph_holder");
+    xml_http = new XMLHttpRequest();
+    //get child by id 
+    xml_http.onreadystatechange = function(){
+        if(xml_http.readyState==4 && xml_http.status==200){
+            graph_obj.innerHTML = xml_http.responseText;
+        }
+        else{
+            graph_obj.innerHTML = "failed to get msg!!";
+        }
+    }
+    xml_http.open("GET",base_url,true);
+    xml_http.send();
+}
+
 </script>
 {% endblock %}

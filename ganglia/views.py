@@ -54,6 +54,9 @@ this function generated the according xml of the rrd
 def get_text(request, host_name, rrd_name, time_slot):
     base_url = "/var/lib/ganglia/rrds/my_cluster/"
     rrd_path = base_url + host_name + "/" + rrd_name + ".rrd"
+    print "------------------------"
+    print rrd_path
+
     end = "now"    
     if time_slot == "1": 
         start = "end-1h"
