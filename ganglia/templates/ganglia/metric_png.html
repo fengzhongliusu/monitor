@@ -4,26 +4,13 @@
 <h4 align="center" class="active">{{metric.mtc_name}} graph</h4>
 </div>
 </div>
+
 <div align="center" class="row">
-  <div class="col-md-4 col-md-offset-1">
-    {% load staticfiles%}
-    <img src="{% static metric.img_path.0 %}"/>
-  </div>
-  <div class="col-md-4 col-md-offset-1">
-    {% load staticfiles%}
-    <img src="{% static metric.img_path.1 %}"/>
-  </div>
+    <button onclick=xml_func("url") class="btn btn-primary">last hour</button> 
+    <button onclick=xml_func("url") class="btn btn-primary">last day</button> 
+    <button onclick=xml_func("url") class="btn btn-primary">last week</button> 
+    <button onclick=xml_func("url") class="btn btn-primary">last month</button> 
 </div>
-<br />
-<div align="center" class="row">
-  <div class="col-md-4 col-md-offset-1">
-    {% load staticfiles%}
-    <img src="{% static metric.img_path.2 %}"/>
-  </div>
-  <div class="col-md-4 col-md-offset-1">
-    {% load staticfiles%}
-    <img src="{% static metric.img_path.3 %}"/>
-  </div>
-</div>
-<br />
+<div id=>
+<br/>
 {% endfor %}

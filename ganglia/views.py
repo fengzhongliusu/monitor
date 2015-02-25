@@ -4,6 +4,9 @@ from ganglia.models import Resource,Metric,Host
 import jpype
 import json
 from ganglia.util import get_relate,str_to_list,res_img,read_ganglia_conf,add_items
+import os 
+import commands 
+from sys import stdin,stdout,stderr
 
 
 # Create your views here.
@@ -44,4 +47,26 @@ def detail(request,resource_id):
             rel_list.append(rel_fil[0])
     return render(request,"ganglia/detail.html",{'resource':res,'metric_list':mtc_list,'relate_list':rel_list})
 
-
+'''
+considering there is one and only one specified cluster
+this function generated the according xml of the rrd
+'''
+def get_text(request, host_name, rrd_name, time_slot):
+    base_url = "/var/lib/ganglia/rrds/my_cluster/"
+    rrd_path = base_url + host_name + "/" + rrd_name + ".rrd"
+    end = "now"    
+    if time_slot == 1: 
+        start = "end-1h"
+        step = "60"
+    elif time_slot == 2:
+        start = "end-1d"
+        step = "800"
+    elif time_slot == 3:
+        start = "end-1w"
+        step = "5000"
+    else : 
+        start = "end-1m"
+        step = "2500"
+    command = "rrdtool xport --start %s --end %s DEF:ds=%s:sum:AVERAGE:step=%s XPORT:ds:legend" % (start,end,rrd_path,step)
+    status,output = commands.getstatusoutput(command)
+    return HttpResponse(output)

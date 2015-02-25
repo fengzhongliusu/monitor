@@ -2,57 +2,61 @@
 
 {% block title %} 
 <div class="row">
-<div class="col-md-6 col-md-offset-3">
-<h2 align=center>
-   Resource: {{ resource }}
-   <small>({{resource.res_hostname}})</small>
-</h2>
-</div>
-<div class="col-md-1 col-md-offset-1">
-<small align="right"><a href="{% url 'ganglia:index' %}">Home</a></small>
-</div>
+    <div class="col-md-6 col-md-offset-3">
+        <h2 align=center>
+            Resource: {{ resource }}
+            <small>({{resource.res_hostname}})</small>
+        </h2>
+    </div>
+    <div class="col-md-1 col-md-offset-1">
+        <small align="right"><a href="{% url 'ganglia:index' %}">Home</a></small>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-xs-2">
-      <h4>Metric List</h4>
-      <ul class=list-group>
-        {% for metric in metric_list %}
-        <li class=list-group-item>
-          <a href="#">{{metric.mtc_name}}</a>
-        </li>
-        {% endfor %}
-      </ul>
-      <h4>Related</h4>
-      {% if relate_list %}
-        <ul>
-	{% for res in relate_list %}
-	  <li><a href="{% url 'ganglia:detail' res.id %}">{{res.res_name}}</a></li>
-	{% endfor %}
-	</ul>
-      {% else %}
-	<h5> no related Resource</h5>
-      {% endif %}
+    <div class="row">
+        <div class="col-xs-2">
+            <h4>Metric List</h4>
+            <ul class=list-group>
+                {% for metric in metric_list %}
+                <li class=list-group-item>
+                <a onclick="test_click('{{metric.mtc_name}}')">{{metric.mtc_name}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            <h4>Related</h4>
+            {% if relate_list %}
+            <ul>
+                {% for res in relate_list %}
+                <li><a href="{% url 'ganglia:detail' res.id %}">{{res.res_name}}</a></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <h5> no related Resource</h5>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div align="center" class="row">
+                <button onclick=xml_func("url") class="btn btn-primary">last hour</button> 
+                <button onclick=xml_func("url") class="btn btn-primary">last day</button> 
+                <button onclick=xml_func("url") class="btn btn-primary">last week</button> 
+                <button onclick=xml_func("url") class="btn btn-primary">last month</button> 
+            </div>
+            <div align="center" class="row">
+                {% for metric in metric_list %}
+                <div id={{ metric.mtc_name }}></div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-    <div class="col-md-10">
-	{% include 'ganglia/metric_png.html' %}
-    </div>
-  </div>
 </div>
 
 
 
 <script>
-  $(document).ready(function(){
-        $("h2").click(function(){
-	  $("#middle").fadeOut();
-        });
-        $("h4").click(function(){
-	  $("#middle").fadeIn();
-        });
-  });
+function test_click(text){
+}
 </script>
 {% endblock %}
