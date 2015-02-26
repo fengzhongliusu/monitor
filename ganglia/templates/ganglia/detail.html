@@ -17,7 +17,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-2">
+        <div class="col-xs-2 col-xs-offset-1">
             <h4>Metric List</h4>
             <ul class=list-group>
                 {% for metric in metric_list %}
@@ -38,7 +38,7 @@
             {% endif %}
         </div>
         <div class="col-md-8">
-            <div align="center" class="row">
+            <div id="middle_container" align="center" class="row">
                 {% for metric in metric_list %}
                 {% if forloop.counter == 1 %}
                 <div id={{ metric.mtc_name }} style="display:block">
@@ -49,7 +49,9 @@
                         <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
                         <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
-                    <div id="graph_holder"></div>
+                    <div id="graph_container" class="demo-container">
+						<div id="graph_holder" class="demo-placeholder"></div>
+					</div>
                 </div>
                 {% else %}
                 <div id={{ metric.mtc_name }} style="display:none">
@@ -60,7 +62,9 @@
                         <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
                         <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
-                    <div id="graph_holder"></div>
+                    <div id="graph_container" class="demo-container">
+						<div id="graph_holder" class="demo-placeholder"></div>
+					</div>
                 </div>
                 {% endif %}
                 {% endfor %}
@@ -82,23 +86,67 @@ function test_click(text){
 }
 
 function xml_func(url,obj){
-    var time_ary = new Array();
     var value_ary = new Array();
     var xml_http;
     var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
-    var graph_obj = obj.parentNode.parentNode.querySelector("#graph_holder");
-    xml_http = new XMLHttpRequest();
     //get child by id 
-    xml_http.onreadystatechange = function(){
-        if(xml_http.readyState==4 && xml_http.status==200){
-            graph_obj.innerHTML = xml_http.responseText;
-        }
-        else{
-            graph_obj.innerHTML = "failed to get msg!!";
-        }
-    }
-    xml_http.open("GET",base_url,true);
+    var graph_obj = obj.parentNode.parentNode.querySelector("#graph_container").querySelector("#graph_holder");
+    xml_http = new XMLHttpRequest();
+
+    /*xml_http.onreadystatechange = function(){
+    }*/
+    xml_http.open("GET",base_url,false);
     xml_http.send();
+	if(xml_http.readyState==4 && xml_http.status==200){
+		xmlDoc = jQuery.parseXML(xml_http.responseText);
+		if(xmlDoc){
+			$(xmlDoc).find('row').each(function(){
+					var time = parseFloat($(this).children('t').text());
+					var value = parseFloat($(this).children('v').text());
+					value_ary.push([time,value]);
+					});
+			var plot = $.plot(graph_obj,
+					[{data:value_ary,lable:"test"}],					
+					{
+						series: {
+							lines: {
+								show: true
+							},
+							points: {
+								show: false
+							}
+						},
+						grid: {
+							hoverable: true,
+							clickable: true 
+						}
+					});
+			$("<div id='tooltip'></div>").css({
+				position: "absolute",
+				display: "none",
+				border: "1px solid #fdd",
+				padding: "2px",
+				"background-color": "#fdd",
+				opacity: 0.80
+			}).appendTo("body");
+
+			$(graph_obj).bind("plothover", function (event, pos, item) {
+					if (item) {
+						var x = item.datapoint[0].toFixed(2),
+							y = item.datapoint[1].toFixed(2);
+
+						$("#tooltip").html("(" + x + "," + y+")").
+							css({top: item.pageY+5, left: item.pageX+5}).
+							fadeIn(150);
+					} else {
+						$("#tooltip").hide();
+					}
+			});
+		}
+	}
+	else{
+		graph_obj.innerHTML = "failed to get msg!!";
+	}
 }
 
 </script>
