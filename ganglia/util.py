@@ -3,12 +3,6 @@ from ganglia.models import Resource,Metric,Host
 import os
 import jpype
 
-'''
-parse the xml generated for graphing into data pairs 
-'''
-def parse_xml(xml):
-    return 
-
 
 '''
 read the configure file of ganglia and save to the table of django models,return hostname list
@@ -110,10 +104,10 @@ def res_img(metric_list):
     for metric in metric_list:
         hostname = str(metric.mtr_hostname)
         m_name = str(metric.metric_name)
-        generate_img(hostname,m_name,'hour')
-        generate_img(hostname,m_name,'day')
-        generate_img(hostname,m_name,'week')
-        generate_img(hostname,m_name,'month')
+        #generate_img(hostname,m_name,'hour')
+        #generate_img(hostname,m_name,'day')
+        #generate_img(hostname,m_name,'week')
+        #generate_img(hostname,m_name,'month')
         metric_imgpath = ['ganglia/images/%s_hour.png' % m_name,
                 'ganglia/images/%s_day.png' % m_name,
                 'ganglia/images/%s_week.png'% m_name,

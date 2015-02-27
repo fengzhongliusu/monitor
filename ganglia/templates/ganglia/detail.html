@@ -22,7 +22,7 @@
             <ul class=list-group>
                 {% for metric in metric_list %}
                 <li class=list-group-item>
-                <a onclick="test_click('{{metric.mtc_name}}')">{{metric.mtc_name}}</a>
+                <a href="#" onclick="click_choose('{{metric.mtc_name}}')">{{metric.mtc_name}}</a>
                 </li>
                 {% endfor %}
             </ul>
@@ -42,12 +42,11 @@
                 {% for metric in metric_list %}
                 {% if forloop.counter == 1 %}
                 <div id={{ metric.mtc_name }} style="display:block">
-                    <div align="center" class="row">graph for {{metric.mtc_name}}</div>
                     <div align="center" class="row">
-                        <button onclick="xml_func('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
                     <div id="graph_container" class="demo-container">
 						<div id="graph_holder" class="demo-placeholder"></div>
@@ -55,12 +54,11 @@
                 </div>
                 {% else %}
                 <div id={{ metric.mtc_name }} style="display:none">
-                    <div align="center" class="row">graph for {{metric.mtc_name}}</div>
                     <div align="center" class="row">
-                        <button onclick="xml_func('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
-                        <button onclick="xml_func('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
+                        <button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
                     <div id="graph_container" class="demo-container">
 						<div id="graph_holder" class="demo-placeholder"></div>
@@ -76,26 +74,37 @@
 
 
 <script type="text/javascript">
-function test_click(text){
+
+$(function(){
+        var elem;
+        var init_url;
+        {% for metric in metric_list %}
+            {% if forloop.counter == 1 %}
+                elem = document.getElementById('{{ metric.mtc_name}}');
+                init_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/{{ metric.mtc_name}}/1/';
+            {% endif%}
+        {% endfor%}
+        gra_elem = elem.querySelector("#graph_container").querySelector("#graph_holder");
+        plot(init_url,gra_elem);
+    });
+
+function click_choose(text){
     {% for metric in metric_list %}      
-    if('{{ metric.mtc_name }}' == text)
+    if('{{ metric.mtc_name }}' == text){
         document.getElementById('{{ metric.mtc_name }}').style.display='block';
+        item_plot(text);
+    }
     else
         document.getElementById('{{ metric.mtc_name }}').style.display='none';
     {% endfor %}
 }
 
-function xml_func(url,obj){
-    var value_ary = new Array();
+function plot(url,obj){
     var xml_http;
-    var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
-    //get child by id 
-    var graph_obj = obj.parentNode.parentNode.querySelector("#graph_container").querySelector("#graph_holder");
+    var xmlDoc;
+    var value_ary = new Array();
     xml_http = new XMLHttpRequest();
-
-    /*xml_http.onreadystatechange = function(){
-    }*/
-    xml_http.open("GET",base_url,false);
+    xml_http.open("GET",url,false);
     xml_http.send();
 	if(xml_http.readyState==4 && xml_http.status==200){
 		xmlDoc = jQuery.parseXML(xml_http.responseText);
@@ -105,7 +114,7 @@ function xml_func(url,obj){
 					var value = parseFloat($(this).children('v').text());
 					value_ary.push([time,value]);
 					});
-			var plot = $.plot(graph_obj,
+            var plot = $.plot(obj,
 					[{data:value_ary,lable:"test"}],					
 					{
 						series: {
@@ -130,7 +139,7 @@ function xml_func(url,obj){
 				opacity: 0.80
 			}).appendTo("body");
 
-			$(graph_obj).bind("plothover", function (event, pos, item) {
+			$(obj).bind("plothover", function (event, pos, item) {
 					if (item) {
 						var x = item.datapoint[0].toFixed(2),
 							y = item.datapoint[1].toFixed(2);
@@ -142,12 +151,38 @@ function xml_func(url,obj){
 						$("#tooltip").hide();
 					}
 			});
+    
+            //show data pair to validate the graph
+			//$("<div id='text'></div>").appendTo(graph_obj.parentNode);
+            //$("#text").html(xml_http.responseText);
 		}
 	}
 	else{
-		graph_obj.innerHTML = "failed to get msg!!";
+		obj.innerHTML = "failed to get msg!!";
 	}
 }
 
+/**
+ plot according to the button clicked
+ */
+function button_plot(url,obj){
+    var base_url;
+    var graph_obj;
+    base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
+    //get child by id 
+    graph_obj = obj.parentNode.parentNode.querySelector("#graph_container").querySelector("#graph_holder");
+    plot(base_url,graph_obj);
+}
+
+/**
+ plot according list item clicked 
+ **/
+function item_plot(m_name){
+    var elem_plot;
+    var url_item;
+    url_item= "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + m_name + "/1/";
+    elem_plot= document.getElementById(m_name).querySelector("#graph_container").querySelector("#graph_holder");
+    plot(url_item,elem_plot);
+}
 </script>
 {% endblock %}
