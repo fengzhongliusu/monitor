@@ -12,7 +12,6 @@
         <small align="right"><a href="{% url 'ganglia:index' %}">Home</a></small>
     </div>
 </div>
-<div align=center id="test_update"></div>
 {% endblock %}
 
 {% block content %}
@@ -199,11 +198,7 @@ function plot_g(url,obj,type){
 				plot.setData([{data:get_xml(url),label: obj.parentNode.parentNode.id}]);
 				plot.setupGrid();
 				plot.draw();
-				x += 1;
-				if (x==61)
-					x = 1;
-				$("#test_update").html(x);
-				setTimeout(update,2000);
+				setTimeout(update,50000);
 			}
 			update();
 
