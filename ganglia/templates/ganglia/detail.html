@@ -12,6 +12,7 @@
         <small align="right"><a href="{% url 'ganglia:index' %}">Home</a></small>
     </div>
 </div>
+<div align=center id="test_update"></div>
 {% endblock %}
 
 {% block content %}
@@ -49,7 +50,10 @@
                         <button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
                     <div id="graph_container" class="demo-container">
-						<div id="graph_holder" class="demo-placeholder"></div>
+						<div id="graph_holder1" class="demo-placeholder" style="display:block"></div>
+						<div id="graph_holder2" class="demo-placeholder" style="display:none"></div>
+						<div id="graph_holder3" class="demo-placeholder" style="display:none"></div>
+						<div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
 					</div>
                 </div>
                 {% else %}
@@ -61,7 +65,10 @@
                         <button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
                     </div>
                     <div id="graph_container" class="demo-container">
-						<div id="graph_holder" class="demo-placeholder"></div>
+						<div id="graph_holder1" class="demo-placeholder" style="display:block"></div>
+						<div id="graph_holder2" class="demo-placeholder" style="display:none"></div>
+						<div id="graph_holder3" class="demo-placeholder" style="display:none"></div>
+						<div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
 					</div>
                 </div>
                 {% endif %}
@@ -95,9 +102,25 @@ $(function(){
                 init_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/{{ metric.mtc_name}}/1/';
             {% endif%}
         {% endfor%}
-        gra_elem = elem.querySelector("#graph_container").querySelector("#graph_holder");
-        plot(init_url,gra_elem,'1');
+        gra_elem = elem.querySelector("#graph_container").querySelector("#graph_holder1");
+        plot_g(init_url,gra_elem,'1');
     });
+
+/*$(function(){
+		var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/';
+		{% for metric in metric_list %}
+			var url_array = [];
+			url_array.push(base_url + "{{metric.mtc_name}}/1/");
+			url_array.push(base_url + "{{metric.mtc_name}}/2/");
+			url_array.push(base_url + "{{metric.mtc_name}}/3/");
+			url_array.push(base_url + "{{metric.mtc_name}}/4/");
+			var child_node= document.getElementById('{{ metric.mtc_name }}').querySelector("#graph_container").children;
+			for(var i=0;i<child_node.length;i++){
+				plot_g(url_array[i],child_node[]);
+			}
+		{% endfor %}
+		});
+*/
 
 function click_choose(text){
     {% for metric in metric_list %}      
@@ -114,12 +137,10 @@ function click_choose(text){
 /**
  funtion for plotting
  */
-function plot(url,obj,type){
-    var xml_http;
-    var xmlDoc;
-    var value_ary = new Array();
+function plot_g(url,obj,type){
     var time_fmt;
     var op;
+	var update_interval = 2000;
 
     if(type == '1'){
         time_fmt = "%H:%M";
@@ -146,17 +167,8 @@ function plot(url,obj,type){
 		};
     }
 
-    xml_http = new XMLHttpRequest();
-    xml_http.open("GET",url,false);
-    xml_http.send();
-	if(xml_http.readyState==4 && xml_http.status==200){
-		xmlDoc = jQuery.parseXML(xml_http.responseText);
-		if(xmlDoc){
-			$(xmlDoc).find('row').each(function(){
-					var time = parseFloat($(this).children('t').text());
-					var value = parseFloat($(this).children('v').text());
-					value_ary.push([time*1000,value]);      //time series xaxis require x to be millis
-					});
+	var value_ary = get_xml(url);
+	if(value_ary.length > 0){
             var plot = $.plot(obj,
 					[{data:value_ary,label: obj.parentNode.parentNode.id}],					
 					{
@@ -181,6 +193,20 @@ function plot(url,obj,type){
                             position:"nw"
                         }
 					});
+
+			var x = 0;
+			function update(){
+				plot.setData([{data:get_xml(url),label: obj.parentNode.parentNode.id}]);
+				plot.setupGrid();
+				plot.draw();
+				x += 1;
+				if (x==61)
+					x = 1;
+				$("#test_update").html(x);
+				setTimeout(update,2000);
+			}
+			update();
+
 			$("<div id='tooltip'></div>").css({
 				position: "absolute",
 				display: "none",
@@ -205,41 +231,73 @@ function plot(url,obj,type){
 					}
 			});
     
-            //show data pair to validate the graph
-			//$("<div id='text'></div>").appendTo(graph_obj.parentNode);
-            //$("#text").html(xml_http.responseText);
-		}
 	}
 	else{
 		obj.innerHTML = "failed to get msg!!";
 	}
 }
 
+
+
 /**
- plot according to the button clicked
- */
-function button_plot(url,obj){
-    var base_url;
-    var graph_obj;
-    var time_type;
-    time_type = url.charAt(url.length-2);
-    base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
-    //get child by id 
-    graph_obj = obj.parentNode.parentNode.querySelector("#graph_container").querySelector("#graph_holder");
-    plot(base_url,graph_obj,time_type);
+ function to update in specific time interval
+ **/
+
+/**
+  function for getting xml data from rrd
+**/
+function get_xml(req_url){
+	var v_array = [];
+    var xml_http = new XMLHttpRequest();
+    xml_http.open("GET",req_url,false);
+    xml_http.send();
+	if(xml_http.readyState==4 && xml_http.status==200){
+		xmlDoc = jQuery.parseXML(xml_http.responseText);
+		$(xmlDoc).find('row').each(function(){
+			var time = parseFloat($(this).children('t').text());
+			var value = parseFloat($(this).children('v').text());
+			v_array.push([time*1000,value]);      //time series xaxis require x to be millis
+		});
+	}
+	return v_array;
 }
 
 /**
- plot according list item clicked 
+  plot according to the button clicked
+ */
+function button_plot(url,obj){
+	var base_url;
+	var child_node;
+	var graph_obj;
+	var time_type;
+	time_type = url.charAt(url.length-2);
+	base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
+	//get child by id 
+	graph_id = "#graph_holder"+time_type;
+	graph_obj = obj.parentNode.parentNode.querySelector("#graph_container").querySelector(graph_id);
+	child_node = graph_obj.parentNode.children;
+	for(var i=0;i<child_node.length;i++)
+		child_node[i].style.display = 'none';
+	graph_obj.style.display = 'block';
+	plot_g(base_url,graph_obj,time_type);
+}
+
+/**
+  plot according list item clicked 
  **/
 function item_plot(m_name){
-    var elem_plot;
-    var url_item;
-    var time_type;
-    time_type = '1';
-    url_item= "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + m_name + "/1/";
-    elem_plot= document.getElementById(m_name).querySelector("#graph_container").querySelector("#graph_holder");
-    plot(url_item,elem_plot);
+	var elem_plot;
+	var url_item;
+	var time_type;
+	time_type = '1';
+	url_item= "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + m_name + "/1/";
+	elem_plot= document.getElementById(m_name).querySelector("#graph_container").querySelector("#graph_holder1");
+	plot_g(url_item,elem_plot,'1');
 }
+
+//show data pair to validate the graph
+//$("<div id='text'></div>").appendTo(graph_obj.parentNode);
+//$("#text").html(xml_http.responseText);
 </script>
+
 {% endblock %}
