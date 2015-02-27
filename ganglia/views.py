@@ -16,8 +16,6 @@ def index(request):
     add_items(hname_list)
     #get content from table
     host_list = Host.objects.all()
-    print host_list
-    print "--------------\n"
     resource_list = Resource.objects.all()
     get_relate(resource_list)
     context = {'resource_list': resource_list,'host_list':host_list}
