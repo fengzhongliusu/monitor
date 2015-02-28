@@ -175,7 +175,7 @@ function plot_g(url,obj,type){
 	var value_ary = get_xml(url);
 	if(value_ary.length > 0){
             plot_list[mtc_name][plot_index]= $.plot(obj,
-					[{data:value_ary,label: obj.parentNode.parentNode.id}],					
+					[{data:value_ary,label: obj.parentNode.parentNode.id + get_unit('{{ resource.res_name }}')}],					
 					{
                         xaxis: {
                           mode: "time",
@@ -240,6 +240,22 @@ function plot_g(url,obj,type){
 
 
 /**
+  get unit
+**/
+function get_unit(axes_name){
+	var unit = "";
+	if(axes_name == "Mem")
+		unit = "(KB)";
+	else if(axes_name == "Disk")
+		unit = "(GB)";
+	else if(axes_name == "Cpu")
+		unit = "(%)";
+	else if(axes_name == "Network")
+		unit = "(packet/s)";
+	return unit;
+}
+
+/**
  function to update in specific time interval
  **/
 function update_plot(){
@@ -252,7 +268,7 @@ function update_plot(){
         url_list.push(base_url + '{{ metric.mtc_name}}/3/');
         url_list.push(base_url + '{{ metric.mtc_name}}/4/');
 		for(var i=0;i<url_list.length;i++){
-			plot_list['{{ metric.mtc_name}}'][i].setData([{data:get_xml(url_list[i]),label:'{{ metric.mtc_name}}'}]);
+			plot_list['{{ metric.mtc_name}}'][i].setData([{data:get_xml(url_list[i]),label:'{{ metric.mtc_name}}'+get_unit('{{ resource.res_name }}')}]);
 			plot_list['{{ metric.mtc_name}}'][i].setupGrid();
 			plot_list['{{ metric.mtc_name}}'][i].draw();
 		}
