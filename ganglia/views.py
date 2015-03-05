@@ -45,6 +45,7 @@ def detail(request,resource_id):
             rel_list.append(rel_fil[0])
     return render(request,"ganglia/detail.html",{'resource':res,'metric_list':mtc_list,'relate_list':rel_list})
 
+
 '''
 considering there is one and only one specified cluster
 this function generated the according xml of the rrd

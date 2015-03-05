@@ -8,10 +8,10 @@
     <script src="{% static 'ganglia/js/jquery.js' %}"></script>
     <script src="{% static 'ganglia/js/jquery.flot.js' %}"></script>
     <script src="{% static 'ganglia/js/jquery.flot.time.js' %}"></script>
-    <h1 align=center>{% block title %}{% endblock %}</h1>
 </head>
 
 <body>
-    <div id="content">{% block content %}{% endblock %}</div>
+    {% block title %}{% endblock %}
+    {% block content %}{% endblock %}
 </body>
 </html>
