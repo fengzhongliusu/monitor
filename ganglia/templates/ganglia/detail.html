@@ -43,21 +43,9 @@
 				{% for metric in metric_list %}
 				{% if forloop.counter == 1 %}
 				<div id={{ metric.mtc_name }} style="display:block">
-					<div align="center" class="row">
-						<button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
-						<button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
-						<button onclick="button_plot('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
-						<button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
-					</div>
-					<div id="graph_container" class="demo-container">
-						<div id="graph_holder1" class="demo-placeholder" style="display:block"></div>
-						<div id="graph_holder2" class="demo-placeholder" style="display:none"></div>
-						<div id="graph_holder3" class="demo-placeholder" style="display:none"></div>
-						<div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
-					</div>
-				</div>
 				{% else %}
 				<div id={{ metric.mtc_name }} style="display:none">
+				{% endif %}
 					<div align="center" class="row">
 						<button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
 						<button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
@@ -71,7 +59,6 @@
 						<div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
 					</div>
 				</div>
-				{% endif %}
 				{% endfor %}
 			</div>
 		</div>
