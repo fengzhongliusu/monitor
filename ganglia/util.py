@@ -22,6 +22,7 @@ def read_ganglia_conf():
     for name in host_list:
         if "summary" in name.lower():
             host_list.remove(name)
+    print host_list
     return host_list
 
 

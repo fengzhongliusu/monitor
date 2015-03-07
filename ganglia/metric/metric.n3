@@ -21,9 +21,9 @@ Disk hasMetric disk_total .
 Load hasMetric load_one .
 Load hasMetric load_five .
 Load hasMetric load_fifteen .
-Network affect Load.
-Load affect Mem.
-Network affect Disk.
 Load affect Disk.
 Disk affect Cpu.
 Load affect Cpu.
+Network affect Load.
+Load affect Mem.
+Network affect Disk.
