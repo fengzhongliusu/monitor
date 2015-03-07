@@ -1,7 +1,11 @@
 #import rrdtool
-from ganglia.models import Resource,Metric,Host
+#from ganglia.models import Resource,Metric,Host
 import os
 import jpype
+from FuXi.SPARQL.BackwardChainingStore import TopDownSPARQLEntailingStore
+from FuXi.Horn.HornRules import HornFromN3
+from rdflib.Graph import Graph
+from rdflib import Namespace
 
 
 '''
@@ -79,8 +83,27 @@ def get_relate(res_list):
         res.save()
     jpype.shutdownJVM()
 
+'''
+function for reasoning the related res of the spefified resource
+'''
+def reason_func(resource_name):
+    famNs = Namespace('file:///home/cshuo/Documents/monitor/ganglia/metric.n3#')
+    nsMapping = {'mtc' : famNs}
+    rules = HornFromN3('metric/metric_rule.n3')
+    factGraph = Graph().parse('metric/metric.n3',format='n3')
+    factGraph.bind('mtc',famNs)
+    dPreds = [famNs.relateTo]
 
-
+    topDownStore=TopDownSPARQLEntailingStore(factGraph.store,factGraph,idb=rules,derivedPredicates = dPreds,nsBindings=nsMapping)
+    targetGraph = Graph(topDownStore)
+    targetGraph.bind('ex',famNs)
+    #get list of the related resource 
+    r_list = list(targetGraph.query('SELECT ?RELATETO { mtc:%s mtc:relateTo ?RELATETO}' % resource_name,initNs=nsMapping))
+    
+    res_list = []
+    for res in r_list:
+        res_list.append(str(res).split("#")[1]);
+    return res_list
 
 '''
 for splitting the related resource list e.g.[cpu,mem]
@@ -147,23 +170,7 @@ def rrdtool_graph(i_path,r_path,start,end,mtric_name,step,time):
     os.system(command)
 
 
-
-
-'''def rrdtool_graph(i_path,r_path,start,end,mtric_name,step):	
-    rrdtool.graph(i_path,'--imgformat','PNG',
-    '--width','250',
-    '--height','150',
-    '--start',start,
-    '--end',end,
-    '--vertical-label','sum',
-    '--title',mtric_name,
-    'DEF:ds=%s:sum:AVERAGE:step=%s' % (r_path,step),
-    'AREA:ds#CC00FF:%s' % mtric_name
-    )
-'''
-
-
 if __name__ == "__main__":
-    #generate_img("localhost","cpu_user","hour")
-    print read_ganglia_conf()
+    print reason_func("Cpu")
+
 
