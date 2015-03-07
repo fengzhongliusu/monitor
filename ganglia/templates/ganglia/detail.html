@@ -70,13 +70,19 @@
 <script type="text/javascript">
 
 var plot_list = {}; //global plot obj intend for realize realtime update
+var update_index;
+var update_name;
 {% for g_mtc in metric_list %}
-var plot_1,plot_2,plot_3,plot_4;
-plot_list['{{ g_mtc.mtc_name}}'] = [plot_1,plot_2,plot_3,plot_4];
+	var plot_1,plot_2,plot_3,plot_4;
+	plot_list['{{ g_mtc.mtc_name}}'] = [plot_1,plot_2,plot_3,plot_4];
+	{% if forloop.counter == 1 %}
+		update_name = '{{ g_mtc.mtc_name }}';
+		update_index = 0;
+	{% endif %}
 {% endfor %}
 
 
-/*$(function(){
+$(function(){
   var elem;
   var init_url;
   {% for metric in metric_list %}
@@ -88,9 +94,10 @@ plot_list['{{ g_mtc.mtc_name}}'] = [plot_1,plot_2,plot_3,plot_4];
   gra_elem = elem.querySelector("#graph_container").querySelector("#graph_holder1");
   plot_g(init_url,gra_elem,'1');
   });
- */
 
-$(function(){
+
+
+/*$(function(){
 		var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/';
 		{% for metric in metric_list %}
 		var url_array = [];
@@ -99,11 +106,15 @@ $(function(){
 		url_array.push(base_url + "{{metric.mtc_name}}/3/");
 		url_array.push(base_url + "{{metric.mtc_name}}/4/");
 		var child_node= document.getElementById('{{ metric.mtc_name }}').querySelector("#graph_container").children;
-		for(var i=0;i<child_node.length;i++){
-		plot_g(url_array[i],child_node[i],url_array[i].charAt(url_array[i].length-2));
-		}
+		{% if forloop.counter == 1 %}
+			for(var i=0;i<child_node.length;i++){
+				plot_g(url_array[i],child_node[i],url_array[i].charAt(url_array[i].length-2));
+			}
+		{% endif %}
 		{% endfor %}
 		});
+*/
+
 
 setInterval(update_plot,30000);
 
@@ -244,7 +255,7 @@ function get_unit(axes_name){
 
 /**
   function to update in specific time interval
- **/
+ **
 function update_plot(){
 	var base_url  = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/';
 	{% for metric in metric_list %}
@@ -259,8 +270,21 @@ function update_plot(){
 		plot_list['{{ metric.mtc_name}}'][i].draw();
 	}
 	{% endfor %}
-}
+}*/
 
+function update_plot(){
+	var base_url  = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/'+update_name +'/';
+    var url_list = [];
+	url_list.push(base_url + '1/');
+	url_list.push(base_url + '2/');
+	url_list.push(base_url + '3/');
+	url_list.push(base_url + '4/');
+	//aim_url = url_list[plot_list[update_name].index(update_g)];
+	var plot_upd = plot_list[update_name][update_index];
+	plot_upd.setData([{data:get_xml(url_list[update_index]),label:update_name+get_unit('{{ resource.res_name}}')}]);
+	plot_upd.setupGrid();
+	plot_upd.draw();
+}
 /**
   function for getting xml data from rrd
  **/
@@ -289,6 +313,24 @@ function button_plot(url,obj){
 	var graph_obj;
 	var time_type;
 	time_type = url.charAt(url.length-2);
+	switch (time_type){
+		case '1': 
+			update_index = 0;
+			break;
+		case '2':
+			update_index = 1;
+			break;
+		case '3':
+			update_index = 2;
+			break;
+		case '4':
+			update_index = 3;
+			break;
+		default:
+			alert("error index");
+			break;
+	}
+
 	base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + url;
 	//get child by id 
 	graph_id = "#graph_holder"+time_type;
@@ -305,10 +347,11 @@ function button_plot(url,obj){
  **/
 function item_plot(m_name){
 	var elem_plot;
-	var url_item;
-	var time_type;
-	time_type = '1';
-	url_item= "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + m_name + "/1/";
+	var url_item = [];
+	update_name = m_name;
+	update_index = 0;
+
+	url_item = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/' + m_name + "/1/";
 	elem_plot= document.getElementById(m_name).querySelector("#graph_container").querySelector("#graph_holder1");
 	plot_g(url_item,elem_plot,'1');
 }

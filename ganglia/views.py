@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from ganglia.models import Resource,Metric,Host
 import jpype
 import json
-from ganglia.util import get_relate,str_to_list,res_img,read_ganglia_conf,add_items
+from ganglia.util import get_relate,str_to_list,res_img,read_ganglia_conf,add_items,reason_func
 import os 
 import commands 
 from sys import stdin,stdout,stderr
@@ -17,7 +17,7 @@ def index(request):
     #get content from table
     host_list = Host.objects.all()
     resource_list = Resource.objects.all()
-    get_relate(resource_list)
+#    get_relate(resource_list)
     context = {'resource_list': resource_list,'host_list':host_list}
     return render(request,'ganglia/index.html',context)
 
@@ -37,6 +37,10 @@ def detail(request,resource_id):
         mtc_list.append(mtc)
 
     rel_namelist = str_to_list(res.res_related)
+    print "-------------------------------------"
+    print rel_namelist
+    rel_namelist = reason_func(res.res_name)
+    print rel_namelist
     rel_list = []
     for rel_name in rel_namelist:
         """attention after filter you get a list"""

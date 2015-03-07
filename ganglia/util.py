@@ -1,5 +1,5 @@
 #import rrdtool
-#from ganglia.models import Resource,Metric,Host
+from ganglia.models import Resource,Metric,Host
 import os
 import jpype
 from FuXi.SPARQL.BackwardChainingStore import TopDownSPARQLEntailingStore
@@ -89,8 +89,8 @@ function for reasoning the related res of the spefified resource
 def reason_func(resource_name):
     famNs = Namespace('file:///home/cshuo/Documents/monitor/ganglia/metric.n3#')
     nsMapping = {'mtc' : famNs}
-    rules = HornFromN3('metric/metric_rule.n3')
-    factGraph = Graph().parse('metric/metric.n3',format='n3')
+    rules = HornFromN3('ganglia/metric/metric_rule.n3')
+    factGraph = Graph().parse('ganglia/metric/metric.n3',format='n3')
     factGraph.bind('mtc',famNs)
     dPreds = [famNs.relateTo]
 
@@ -115,8 +115,6 @@ def str_to_list(s):
         trip_str = s[1:-1]
         list_str = trip_str.split(",")
     return list_str
-
-
 
 
 '''
