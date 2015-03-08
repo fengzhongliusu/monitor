@@ -35,10 +35,7 @@ def detail(request,resource_id):
         mtc["mtc_name"] = metric.metric_name
         mtc['img_path'] = path_list[metric.metric_name]
         mtc_list.append(mtc)
-
-    rel_namelist = str_to_list(res.res_related)
-    print "-------------------------------------"
-    print rel_namelist
+    
     rel_namelist = reason_func(res.res_name)
     print rel_namelist
     rel_list = []
