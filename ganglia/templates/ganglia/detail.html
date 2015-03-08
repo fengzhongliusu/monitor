@@ -37,8 +37,28 @@
 			</ul>
 			{% else %}
 			<h5> no related Resource</h5>
-			{% endif %}
+			{% endif %}			
+			<br/>
+			<label>
+				<input id="enableAlert" type="checkbox" autocomplete="off"></input>	
+				<span style="padding:3px;font-size:15px">Enable Alerting</span>
+			</label>
+			<br/><br/>  		
+			<div id="alert-content" style="display:none">	
+				<p>Alert on:
+					<select id="selector"></select>
+				</p>
+				<br/>  			
+				<p>Threshold: <span id="unit"></span></p> 			
+				<p>upper bound:
+					<input id="upper_bd" type="text" value="" style="text-align: right; width:5em"> 			
+				</p>			  			  			
+				<p>lower bound:
+					<input id="lower_bd" type="text" value="" style="text-align: right; width:5em"> 			
+				</p>
+			</div>
 		</div>
+
 		<div class="col-md-8">
 			<div id="middle_container" align="center" class="row">
 				{% for metric in metric_list %}
@@ -68,7 +88,7 @@
 
 
 
-	<script type="text/javascript">
+<script type="text/javascript">
 
 var plot_list = {}; //global plot obj intend for realize realtime update
 var update_index;
@@ -82,7 +102,26 @@ update_index = 0;
 {% endif %}
 {% endfor %}
 
+//write unit of the threshold according to res name of the page
+$("#unit").html(get_unit('{{ resource.res_name }}'));
 
+//init the pulldown content
+$(function(){
+	var sel = document.getElementById("selector");
+	var all_elem = document.createElement("option");
+	all_elem.innerHTML = "all_together";
+	sel.appendChild(all_elem);
+	{% for pulldown_mtc in metric_list %}
+	var e = document.createElement("option");
+	e.innerHTML = '{{ pulldown_mtc.mtc_name }}';
+	sel.appendChild(e);
+	{% endfor %}
+});
+
+if ($("#enableAlert:checked").length > 0) {	
+}
+
+//init plotting when first load the page
 $(function(){
 	var elem;
 	var init_url;
@@ -98,6 +137,9 @@ $(function(){
 
 
 setInterval(update_plot,30000);
+
+//check alerting every 3 minutes
+//setInterval(check_alert,2000);  
 
 function click_choose(text){
 	{% for metric in metric_list %}      
@@ -166,7 +208,7 @@ function click_choose(text){
   					},
   					points: {
   						show: false
-  					}
+  					}  					
   				},
   				grid: {
   					hoverable: true,
@@ -227,20 +269,29 @@ function click_choose(text){
 
 /**
   function to update in specific time interval
- **/
-function update_plot(){
-	var base_url  = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/'+update_name +'/';
-	var url_list = [];
-	url_list.push(base_url + '1/');
-	url_list.push(base_url + '2/');
-	url_list.push(base_url + '3/');
-	url_list.push(base_url + '4/');	
-	var plot_upd = plot_list[update_name][update_index];
-	plot_upd.setData([{data:get_xml(url_list[update_index]),label:update_name+get_unit('{{ resource.res_name}}')}]);
-	plot_upd.setupGrid();
-	plot_upd.draw();
-}
+  **/
+  function update_plot(){
+  	var base_url  = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/'+update_name +'/';
+  	var url_list = [];
+  	url_list.push(base_url + '1/');
+  	url_list.push(base_url + '2/');
+  	url_list.push(base_url + '3/');
+  	url_list.push(base_url + '4/');	
+  	var plot_upd = plot_list[update_name][update_index];
+  	plot_upd.setData([{data:get_xml(url_list[update_index]),label:update_name+get_unit('{{ resource.res_name}}')}]);
+  	plot_upd.setupGrid();
+  	plot_upd.draw();	
+  }
 
+
+/**
+	function to check whether metric exceed the threshold
+	**/
+	function check_alert(alert_name){
+		var s = document.getElementById("selector");
+		var txt = s.options[s.selectedIndex].text;
+		alert(txt);
+	}
 
 
 /**
