@@ -12,7 +12,7 @@
 		<a href="{% url 'ganglia:index' %}" style="font-size:20px;color:#a6a6a0">Home</a>
 	</div>
 </div>
-<div id="test" align=center></div>
+
 <br/>
 {% endblock %}
 
@@ -20,6 +20,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-xs-2 col-xs-offset-1">
+      <br/>
 			<h4>Metric List</h4>
 			<ul class="nav nav-pills nav-stacked">
 				{% for metric in metric_list %}
@@ -40,52 +41,58 @@
 			{% endif %}			
 			<br/>
 			<label>
-				<input id="enableAlert" type="checkbox" autocomplete="off"></input>	
+				<input id="enableAlert" type="checkbox"></input>	
 				<span style="padding:3px;font-size:15px">Enable Alerting</span>
 			</label>
 			<br/><br/>  		
-			<div id="alert-content" style="display:none">	
+			<div id="alert-content" style="display:none">				
 				<p>Alert on:
 					<select id="selector"></select>
-				</p>
-				<br/>  			
+				</p>		
 				<p>Threshold: <span id="unit"></span></p> 			
 				<p>upper bound:
-					<input id="upper_bd" type="text" value="" style="text-align: right; width:5em"> 			
+					<input id="upper_bd" type="text" style="text-align: right; width:5em" /> 			
 				</p>			  			  			
 				<p>lower bound:
-					<input id="lower_bd" type="text" value="" style="text-align: right; width:5em"> 			
-				</p>
-			</div>
-		</div>
+					<input id="lower_bd" type="text" style="text-align: right; width:5em" /> 			
+				</p>				
+        <button type="button" id="check_button" class="btn btn-primary">
+          submitting
+        </button>
+      </div>      
+      <div id="alert-content-setted" style="display:none">      
+        <p>Alert on: <span id="alert-name"></span></p>
+        <p>upper-bound: <span id="upper-setted"></span></p>
+        <p>lower-bound: <span id="lower-setted"></span></p>        
+      </div>
+    </div>
 
-		<div class="col-md-8">
-			<div id="middle_container" align="center" class="row">
-				{% for metric in metric_list %}
-				{% if forloop.counter == 1 %}
-				<div id={{ metric.mtc_name }} style="display:block">
-					{% else %}
-					<div id={{ metric.mtc_name }} style="display:none">
-						{% endif %}
-						<div align="center" class="row">
-							<button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
-							<button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
-							<button onclick="button_plot('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
-							<button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
-						</div>
-						<div id="graph_container" class="demo-container">
-							<div id="graph_holder1" class="demo-placeholder" style="display:block"></div>
-							<div id="graph_holder2" class="demo-placeholder" style="display:none"></div>
-							<div id="graph_holder3" class="demo-placeholder" style="display:none"></div>
-							<div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
-						</div>
-					</div>
-					{% endfor %}
-				</div>
-			</div>
-		</div>
-	</div>
-
+    <div class="col-md-8">
+     <div id="middle_container" align="center" class="row">
+      {% for metric in metric_list %}
+      {% if forloop.counter == 1 %}
+      <div id={{ metric.mtc_name }} style="display:block">
+       {% else %}
+       <div id={{ metric.mtc_name }} style="display:none">
+        {% endif %}
+        <div align="center" class="row">
+         <button onclick="button_plot('{{ metric.mtc_name}}/1/',this)" class="btn btn-primary">last hour</button> 
+         <button onclick="button_plot('{{ metric.mtc_name}}/2/',this)" class="btn btn-primary">last day</button> 
+         <button onclick="button_plot('{{ metric.mtc_name}}/3/',this)" class="btn btn-primary">last week</button> 
+         <button onclick="button_plot('{{ metric.mtc_name}}/4/',this)" class="btn btn-primary">last month</button> 
+       </div>
+       <div id="graph_container" class="demo-container">
+         <div id="graph_holder1" class="demo-placeholder" style="display:block"></div>
+         <div id="graph_holder2" class="demo-placeholder" style="display:none"></div>
+         <div id="graph_holder3" class="demo-placeholder" style="display:none"></div>
+         <div id="graph_holder4" class="demo-placeholder" style="display:none"></div>
+       </div>
+     </div>
+     {% endfor %}
+   </div>
+ </div>
+</div>
+</div>
 
 
 <script type="text/javascript">
@@ -93,6 +100,8 @@
 var plot_list = {}; //global plot obj intend for realize realtime update
 var update_index;
 var update_name;
+var init_alert = 1;
+
 {% for g_mtc in metric_list %}
 var plot_1,plot_2,plot_3,plot_4;
 plot_list['{{ g_mtc.mtc_name}}'] = [plot_1,plot_2,plot_3,plot_4];
@@ -102,8 +111,39 @@ update_index = 0;
 {% endif %}
 {% endfor %}
 
+
+$('#check_button').on('click', function () {    
+  if(document.getElementById('upper_bd').value.length == 0 
+    || document.getElementById('lower_bd').value.length == 0){
+    alert("please input!!");
+}  
+else{    
+  var s = document.getElementById("selector");    
+  var alert_name = s.options[s.selectedIndex].text;
+  $("#alert-content").hide();
+  $("#alert-name").html(alert_name+" "+get_unit('{{ resource.res_name }}'));
+  $("#upper-setted").html($("#upper_bd").val());
+  $("#lower-setted").html($("#lower_bd").val());
+  $("#alert-content-setted").fadeIn();  
+  setInterval(alert_func,600000);
+}
+});
+
 //write unit of the threshold according to res name of the page
 $("#unit").html(get_unit('{{ resource.res_name }}'));
+
+
+//click checkbox to control the display of alert-content
+$('#enableAlert').on('change', function() {     
+  if (this.checked) {
+    $('#alert-content').fadeIn();
+  }
+  else{
+   $('#alert-content').fadeOut();
+   $('#alert-content-setted').fadeOut();
+ }
+});
+
 
 //init the pulldown content
 $(function(){
@@ -117,9 +157,6 @@ $(function(){
 	sel.appendChild(e);
 	{% endfor %}
 });
-
-if ($("#enableAlert:checked").length > 0) {	
-}
 
 //init plotting when first load the page
 $(function(){
@@ -139,7 +176,7 @@ $(function(){
 setInterval(update_plot,30000);
 
 //check alerting every 3 minutes
-//setInterval(check_alert,2000);  
+// setInterval(check_alert,2000);  
 
 function click_choose(text){
 	{% for metric in metric_list %}      
@@ -191,7 +228,6 @@ function click_choose(text){
   		};
   	}
 
-
   	var value_ary = get_xml(url);
   	if(value_ary.length > 0){
   		plot_list[mtc_name][plot_index]= $.plot(obj,
@@ -218,7 +254,6 @@ function click_choose(text){
   					position:"nw"
   				}
   			});
-
 
   		$("<div id='tooltip'></div>").css({
   			position: "absolute",
@@ -249,6 +284,7 @@ function click_choose(text){
   		obj.innerHTML = "failed to get msg!!";
   	}
   }
+
 
 
 /**
@@ -283,15 +319,6 @@ function click_choose(text){
   	plot_upd.draw();	
   }
 
-
-/**
-	function to check whether metric exceed the threshold
-	**/
-	function check_alert(alert_name){
-		var s = document.getElementById("selector");
-		var txt = s.options[s.selectedIndex].text;
-		alert(txt);
-	}
 
 
 /**
@@ -364,6 +391,62 @@ function click_choose(text){
   	elem_plot= document.getElementById(m_name).querySelector("#graph_container").querySelector("#graph_holder1");
   	plot_g(url_item,elem_plot,'1');
   }
+
+
+/**
+  function to check whether the specified metric exceed the threshold 
+  **/
+  function alert_func(){
+    var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/';
+    var s = document.getElementById("selector");    
+    var alert_mtc = s.options[s.selectedIndex].text;
+    var upper_bound = $("#upper_bd").val();
+    var lower_bound = $("#lower_bd").val();    
+    var m_value = [];
+    var alert_sign = 1;
+    var all_NaN = 1;
+
+    if(alert_mtc == "all_together"){   //all metric of the resource together              
+      var all_mtc_array = [];      
+      {% for m in metric_list %}        //get all metric xml data in last 10 minutes
+      var m_url = base_url + '{{ m.mtc_name }}/5/';
+      var m_data = get_xml(m_url);
+      all_mtc_array.push(m_data);
+      {% endfor %}      
+      
+      for(var i=0;i<all_mtc_array[0].length;i++){
+        m_value.push(all_mtc_array[0][i][1]);
+      }
+      for(var i=1;i<all_mtc_array.length;i++){
+        for(var j=0;j<m_value.length;j++){          
+          m_value[j] += all_mtc_array[i][j][1];
+        }            
+      }
+    }
+    else{           //only one metric of the resource in the page
+      var alert_url = base_url + alert_mtc + "/5/";
+      var xml_data = get_xml(alert_url);            
+      for (var i=0;i<xml_data.length;i++){
+        m_value.push(xml_data[i][1])      
+      }      
+    }
+
+    //judge whether all value is within the threshold
+    for(var i=0;i<m_value.length;i++){      
+      if(!isNaN(m_value[i])){
+        all_NaN = 0;
+        if(m_value[i]<upper_bound && m_value[i]>lower_bound){
+          alert_sign = 0;
+        }      
+      }      
+    }
+
+    if(all_NaN ==1 )
+      alert("all Num is NaN!!");    
+    else if(alert_sign ==1)      
+      alert("all num exceed the threshold!!");    
+
+  }//end of func
 
 </script>
 

@@ -65,9 +65,12 @@ def get_text(request, host_name, rrd_name, time_slot):
     elif time_slot == "3":
         start = "end-1w"
         step = "7200"
-    else : 
+    elif time_slot == "4":
         start = "end-1m"
         step = "7200"
+    else:        
+        start = "end-600"
+        step = "60"
     command = "rrdtool xport --start %s --end %s DEF:ds=%s:sum:AVERAGE:step=%s XPORT:ds:legend" % (start,end,rrd_path,step)
     status,output = commands.getstatusoutput(command)
     return HttpResponse(output)
