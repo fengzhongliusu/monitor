@@ -2,3 +2,8 @@ cpu: %
 mem: KB
 disk: GB
 net: pck/s
+
+enable alert module:
+the alert func can read the val of the input text and pulldown content without submmit
+(button not actuall work)
+

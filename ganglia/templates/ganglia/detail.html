@@ -142,7 +142,7 @@ else{
   $("#lower-setted").html($("#lower_bd").val());
   $("#alert-content-setted").fadeIn();        
   if(init_alert == 1){        
-    setInterval(alert_func,600000);    
+    setInterval(alert_func,3000);    
     init_alert = 0;
   }
 }
@@ -259,8 +259,9 @@ function click_choose(text){
   				},
   				series: {
   					lines: {
-  						show: true
-  					},
+  						show: true,
+              fill: true
+  					},            
   					points: {
   						show: false
   					}  					
@@ -415,7 +416,7 @@ function click_choose(text){
 /**
   function to check whether the specified metric exceed the threshold 
   **/
-  function alert_func(){
+  function alert_func(){    
     var base_url = "http://localhost:8000/ganglia/xml/" + '{{ resource.res_hostname}}/';
     var s = document.getElementById("selector");    
     var alert_mtc = s.options[s.selectedIndex].text;
@@ -424,6 +425,10 @@ function click_choose(text){
     var m_value = [];
     var alert_sign = 1;
     var all_NaN = 1;  
+
+    //checkbox is not checked, return directly
+    if(!$('#enableAlert').is(':checked'))
+      return;  
 
     if(alert_mtc == "all_together"){   //all metric of the resource together              
       var all_mtc_array = [];      
